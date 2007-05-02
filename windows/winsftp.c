@@ -200,10 +200,10 @@ int seek_file(WFile *f, uint64 offset, int whence)
     }
 
     SetFilePointer(f->h, offset.lo, &(offset.hi), movemethod);
-    
+
     if (GetLastError() != NO_ERROR)
 	return -1;
-    else 
+    else
 	return 0;
 }
 
@@ -630,7 +630,7 @@ int ssh_sftp_loop_iteration(void)
 
 /*
  * Read a command line from standard input.
- * 
+ *
  * In the presence of WinSock 2, we can use WSAEventSelect to
  * mediate between the socket and stdin, meaning we can send
  * keepalives and respond to server events even while waiting at
@@ -696,6 +696,11 @@ char *ssh_sftp_get_cmdline(char *prompt, int no_fds_ok)
 int main(int argc, char *argv[])
 {
     int ret;
+
+    /*
+     * Set base_path
+     */
+    _getcwd(base_path, _MAX_PATH);
 
     ret = psftp_main(argc, argv);
 

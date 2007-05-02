@@ -280,6 +280,12 @@ int main(int argc, char **argv)
     default_port = 22;
 
     flags = FLAG_STDERR;
+
+    /*
+     * Set base_path
+     */
+    _getcwd(base_path, _MAX_PATH);
+
     /*
      * Process the command line.
      */
@@ -603,7 +609,7 @@ int main(int argc, char **argv)
 
     while (1) {
 	int nhandles;
-	HANDLE *handles;	
+	HANDLE *handles;
 	int n;
 	DWORD ticks;
 

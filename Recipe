@@ -1,5 +1,5 @@
 # -*- makefile -*-
-# 
+#
 # This file describes which PuTTY programs are made up from which
 # object and resource files. It is processed into the various
 # Makefiles by means of a Perl script. Makefile changes should
@@ -274,7 +274,7 @@ CHARSET  = sbcsdat slookup sbcs utf8 toucs fromucs xenc mimeenc macenc localenc
 
 # Standard libraries.
 LIBS     = advapi32.lib user32.lib gdi32.lib comctl32.lib comdlg32.lib
-         + shell32.lib winmm.lib imm32.lib winspool.lib
+         + shell32.lib winmm.lib imm32.lib winspool.lib shlwapi.lib
 
 # Network backend sets. This also brings in the relevant attachment
 # to proxy.c depending on whether we're crypto-avoidant or not.
@@ -295,22 +295,22 @@ U_BE_NOSSH = be_nos_s uxser nocproxy
 # keywords [G] for Windows GUI app, [C] for Console app, [X] for
 # X/GTK Unix app, [U] for command-line Unix app, [M] for Macintosh app.
 
-putty    : [G] GUITERM NONSSH WINSSH W_BE_ALL WINMISC putty.res LIBS
-puttytel : [G] GUITERM NONSSH W_BE_NOSSH WINMISC puttytel.res LIBS
-plink    : [C] winplink wincons NONSSH WINSSH W_BE_ALL logging WINMISC
+putty    : [G] GUITERM NONSSH WINSSH W_BE_ALL WINMISC dirent putty.res LIBS
+puttytel : [G] GUITERM NONSSH W_BE_NOSSH WINMISC dirent puttytel.res LIBS
+plink    : [C] winplink wincons NONSSH WINSSH W_BE_ALL logging WINMISC dirent
          + plink.res LIBS
-pscp     : [C] pscp winsftp wincons WINSSH BE_SSH SFTP wildcard WINMISC
+pscp     : [C] pscp winsftp wincons WINSSH BE_SSH SFTP wildcard WINMISC dirent
          + pscp.res LIBS
-psftp    : [C] psftp winsftp wincons WINSSH BE_SSH SFTP wildcard WINMISC
+psftp    : [C] psftp winsftp wincons WINSSH BE_SSH SFTP wildcard WINMISC dirent
          + psftp.res LIBS
 
-pageant  : [G] winpgnt sshrsa sshpubk sshdes sshbn sshmd5 version tree234
-         + misc sshaes sshsha winpgntc sshdss sshsh512 winutils winmisc
+pageant  : [G] winpgnt sshrsa sshpubk sshdes sshbn sshmd5 version tree234 winstore
+         + misc sshaes sshsha winpgntc sshdss sshsh512 winutils winmisc dirent
          + winhelp pageant.res LIBS
 
 puttygen : [G] winpgen sshrsag sshdssg sshprime sshdes sshbn sshmd5 version
          + sshrand winnoise sshsha winstore misc winctrls sshrsa sshdss winmisc
-         + sshpubk sshaes sshsh512 import winutils puttygen.res tree234
+         + sshpubk sshaes sshsh512 import winutils dirent puttygen.res tree234
 	 + notiming winhelp LIBS wintime
 
 pterm    : [X] GTKTERM uxmisc misc ldisc settings uxpty uxsel BE_NONE uxstore
