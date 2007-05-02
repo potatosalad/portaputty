@@ -435,7 +435,7 @@ void *handle_get_privdata(struct handle *h);
  * pageantc.c needs to schedule callbacks for asynchronous agent
  * requests. This has to be done differently in GUI and console, so
  * there's an exported function used for the purpose.
- * 
+ *
  * Also, we supply FLAG_SYNCAGENT to force agent requests to be
  * synchronous in pscp and psftp.
  */
@@ -449,3 +449,5 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
 extern Backend serial_backend;
 
 #endif
+
+GLOBAL char base_path[_MAX_PATH];

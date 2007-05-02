@@ -23,6 +23,19 @@ char sshver[] = "PuTTY-Snapshot-" SNAPSHOT_TEXT;
 char ver[] = "Release " STR(RELEASE);
 char sshver[] = "PuTTY-Release-" STR(RELEASE);
 
+#elif defined PORTABLE
+
+#if defined SVN_REV
+#define PORTABLE_TEXT STR(PORTABLE) ":r" STR(SVN_REV)
+#else
+#define PORTABLE_TEXT STR(PORTABLE)
+#endif
+
+char ver[] = "portaPuTTY " PORTABLE_TEXT;
+char sshver[] = "PuTTY-Portable-" PORTABLE_TEXT;
+
+#undef PORTABLE_TEXT
+
 #else
 
 char ver[] = "Unidentified build, " __DATE__ " " __TIME__;
