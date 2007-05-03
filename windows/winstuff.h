@@ -449,3 +449,5 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
 extern Backend serial_backend;
 
 #endif
+
+GLOBAL char base_path[_MAX_PATH];
