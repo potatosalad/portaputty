@@ -9,6 +9,7 @@
 #include <time.h>
 #include <limits.h>
 #include <assert.h>
+#include <direct.h>
 
 #ifndef NO_MULTIMON
 #define COMPILE_MULTIMON_STUBS
@@ -375,6 +376,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	sfree(str);
 	return 1;
     }
+
+    /*
+     * Set base_path
+     */
+    _getcwd(base_path, _MAX_PATH);
 
     /*
      * Process the command line.

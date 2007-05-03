@@ -478,7 +478,7 @@ static int save_ssh2_pubkey(char *filename, struct ssh2_userkey *key)
     }
     if (column > 0)
 	fputc('\n', fp);
-    
+
     fprintf(fp, "---- END SSH2 PUBLIC KEY ----\n");
     fclose(fp);
     sfree(pub_blob);
@@ -1402,6 +1402,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     InitCommonControls();
     hinst = inst;
     hwnd = NULL;
+
+    /*
+     * Set base_path
+     */
+    _getcwd(base_path, _MAX_PATH);
 
     /*
      * See if we can find our Help file.

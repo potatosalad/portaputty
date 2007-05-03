@@ -14,6 +14,8 @@
 #include "ssh.h"
 #include "misc.h"
 #include "tree234.h"
+#include "storage.h"
+#include "dirent.h"
 
 #include <shellapi.h>
 
@@ -68,6 +70,8 @@ static filereq *keypath = NULL;
 #define IDM_SESSIONS_MAX  0x2000
 #define PUTTY_REGKEY      "Software\\SimonTatham\\PuTTY\\Sessions"
 #define PUTTY_DEFAULT     "Default%20Settings"
+#define PUTTY_DEFAULT2    "Default Settings"
+#define PUTTY_PORTABLE    TRUE
 static int initial_menuitems_count;
 
 /*
@@ -117,10 +121,10 @@ static tree234 *rsakeys, *ssh2keys;
 
 static int has_security;
 #ifndef NO_SECURITY
-DECL_WINDOWS_FUNCTION(extern, DWORD, GetSecurityInfo,
-		      (HANDLE, SE_OBJECT_TYPE, SECURITY_INFORMATION,
-		       PSID *, PSID *, PACL *, PACL *,
-		       PSECURITY_DESCRIPTOR *));
+typedef DWORD(WINAPI * gsi_fn_t)
+ (HANDLE, SE_OBJECT_TYPE, SECURITY_INFORMATION,
+  PSID *, PSID *, PACL *, PACL *, PSECURITY_DESCRIPTOR *);
+static gsi_fn_t getsecurityinfo;
 #endif
 
 /*
@@ -1638,14 +1642,17 @@ static void update_sessions(void)
     HKEY hkey;
     TCHAR buf[MAX_PATH + 1];
     MENUITEMINFO mii;
+    DIR *dp;
 
     int index_key, index_menu;
 
     if (!putty_path)
 	return;
 
+    if (!PUTTY_PORTABLE) {
     if(ERROR_SUCCESS != RegOpenKey(HKEY_CURRENT_USER, PUTTY_REGKEY, &hkey))
 	return;
+    }
 
     for(num_entries = GetMenuItemCount(session_menu);
 	num_entries > initial_menuitems_count;
@@ -1655,6 +1662,7 @@ static void update_sessions(void)
     index_key = 0;
     index_menu = 0;
 
+    if (!PUTTY_PORTABLE) {
     while(ERROR_SUCCESS == RegEnumKey(hkey, index_key, buf, MAX_PATH)) {
 	TCHAR session_name[MAX_PATH + 1];
 	unmungestr(buf, session_name, MAX_PATH);
@@ -1673,6 +1681,26 @@ static void update_sessions(void)
     }
 
     RegCloseKey(hkey);
+    }
+
+    dp = enum_settings_start();
+    while(enum_settings_next(dp, buf, MAX_PATH)) {
+	TCHAR session_name[MAX_PATH + 1];
+	unmungestr(buf, session_name, MAX_PATH);
+	if(strcmp(buf, PUTTY_DEFAULT) != 0 && strcmp(buf, PUTTY_DEFAULT2) != 0) {
+	    memset(&mii, 0, sizeof(mii));
+	    mii.cbSize = sizeof(mii);
+	    mii.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
+	    mii.fType = MFT_STRING;
+	    mii.fState = MFS_ENABLED;
+	    mii.wID = (index_menu * 16) + IDM_SESSIONS_BASE;
+	    mii.dwTypeData = session_name;
+	    InsertMenuItem(session_menu, index_menu, TRUE, &mii);
+	    index_menu++;
+	}
+	index_key++;
+    }
+    enum_settings_finish(dp);
 
     if(index_menu == 0) {
 	mii.cbSize = sizeof(mii);
@@ -1821,7 +1849,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	    void *p;
 	    HANDLE filemap;
 #ifndef NO_SECURITY
-	    PSID mapowner, ourself;
+	    HANDLE proc;
+	    PSID mapowner, procowner;
 	    PSECURITY_DESCRIPTOR psd1 = NULL, psd2 = NULL;
 #endif
 	    int ret = 0;
@@ -1843,35 +1872,40 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 #ifndef NO_SECURITY
 		int rc;
 		if (has_security) {
-                    if ((ourself = get_user_sid()) == NULL) {
+		    if ((proc = OpenProcess(MAXIMUM_ALLOWED, FALSE,
+					    GetCurrentProcessId())) ==
+			NULL) {
 #ifdef DEBUG_IPC
-			debug(("couldn't get user SID\n"));
+			debug(("couldn't get handle for process\n"));
 #endif
 			return 0;
-                    }
-
-		    if ((rc = p_GetSecurityInfo(filemap, SE_KERNEL_OBJECT,
-						OWNER_SECURITY_INFORMATION,
-						&mapowner, NULL, NULL, NULL,
-						&psd1) != ERROR_SUCCESS)) {
+		    }
+		    if (getsecurityinfo(proc, SE_KERNEL_OBJECT,
+					OWNER_SECURITY_INFORMATION,
+					&procowner, NULL, NULL, NULL,
+					&psd2) != ERROR_SUCCESS) {
 #ifdef DEBUG_IPC
-			debug(("couldn't get owner info for filemap: %d\n",
-                               rc));
+			debug(("couldn't get owner info for process\n"));
+#endif
+			CloseHandle(proc);
+			return 0;      /* unable to get security info */
+		    }
+		    CloseHandle(proc);
+		    if ((rc = getsecurityinfo(filemap, SE_KERNEL_OBJECT,
+					      OWNER_SECURITY_INFORMATION,
+					      &mapowner, NULL, NULL, NULL,
+					      &psd1) != ERROR_SUCCESS)) {
+#ifdef DEBUG_IPC
+			debug(
+			      ("couldn't get owner info for filemap: %d\n",
+			       rc));
 #endif
 			return 0;
 		    }
 #ifdef DEBUG_IPC
-                    {
-                        LPTSTR ours, theirs;
-                        ConvertSidToStringSid(mapowner, &theirs);
-                        ConvertSidToStringSid(ourself, &ours);
-                        debug(("got both sids: ours=%s theirs=%s\n",
-                               ours, theirs));
-                        LocalFree(ours);
-                        LocalFree(theirs);
-                    }
+		    debug(("got security stuff\n"));
 #endif
-		    if (!EqualSid(mapowner, ourself))
+		    if (!EqualSid(mapowner, procowner))
 			return 0;      /* security ID mismatch! */
 #ifdef DEBUG_IPC
 		    debug(("security stuff matched\n"));
@@ -1890,9 +1924,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		{
 		    int i;
 		    for (i = 0; i < 5; i++)
-			debug(("p[%d]=%02x\n", i,
-			       ((unsigned char *) p)[i]));
-                }
+			debug(
+			      ("p[%d]=%02x\n", i,
+			       ((unsigned char *) p)[i]));}
 #endif
 		answer_msg(p);
 		ret = 1;
@@ -1953,6 +1987,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     hwnd = NULL;
 
     /*
+     * Set base_path
+     */
+    _getcwd(base_path, _MAX_PATH);
+
+    /*
      * Determine whether we're an NT system (should have security
      * APIs) or a non-NT system (don't do security).
      */
@@ -1970,7 +2009,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	/*
 	 * Attempt to get the security API we need.
 	 */
-        if (!init_advapi()) {
+	advapi = LoadLibrary("ADVAPI32.DLL");
+	getsecurityinfo =
+	    (gsi_fn_t) GetProcAddress(advapi, "GetSecurityInfo");
+	if (!getsecurityinfo) {
 	    MessageBox(NULL,
 		       "Unable to access security APIs. Pageant will\n"
 		       "not run, in case it causes a security breach.",
@@ -1999,7 +2041,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     {
         char b[2048], *p, *q, *r;
         FILE *fp;
-        GetModuleFileName(NULL, b, sizeof(b) - 16);
+        GetModuleFileName(NULL, b, sizeof(b) - 1);
         r = b;
         p = strrchr(b, '\\');
         if (p && p >= r) r = p+1;
