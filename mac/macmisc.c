@@ -1,4 +1,4 @@
-/* $Id: macmisc.c 7084 2007-01-09 18:14:30Z simon $ */
+/* $Id$ */
 /*
  * Copyright (c) 1999, 2003 Ben Harris
  * All rights reserved.

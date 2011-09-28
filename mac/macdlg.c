@@ -1,4 +1,4 @@
-/* $Id: macdlg.c 7266 2007-02-10 17:12:06Z simon $ */
+/* $Id$ */
 /*
  * Copyright (c) 2002 Ben Harris
  * All rights reserved.

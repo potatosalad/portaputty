@@ -1,4 +1,4 @@
-/* $Id: macterm.c 6555 2006-02-13 22:18:17Z owen $ */
+/* $Id$ */
 /*
  * Copyright (c) 1999 Simon Tatham
  * Copyright (c) 1999, 2002 Ben Harris

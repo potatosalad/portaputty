@@ -1,4 +1,4 @@
-\define{versionidplink} \versionid $Id: plink.but 7488 2007-04-29 11:28:54Z simon $
+\define{versionidplink} \versionid $Id$
 
 \C{plink} Using the command-line connection tool \i{Plink}
 

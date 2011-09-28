@@ -1,4 +1,4 @@
-/* $Id: macctrls.c 6815 2006-08-28 10:35:12Z simon $ */
+/* $Id$ */
 /*
  * Copyright (c) 2003 Ben Harris
  * All rights reserved.

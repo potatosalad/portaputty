@@ -1,4 +1,4 @@
-/* $Id: macevlog.c 5250 2005-02-05 00:29:20Z owen $ */
+/* $Id$ */
 /*
  * Copyright (c) 2003 Ben Harris
  * All rights reserved.

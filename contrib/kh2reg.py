@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# $Id: kh2reg.py 5480 2005-03-10 16:36:05Z jacob $
+# $Id$
 # Convert OpenSSH known_hosts and known_hosts2 files to "new format" PuTTY
 # host keys.
 #   usage:

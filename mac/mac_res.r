@@ -1,4 +1,4 @@
-/* $Id: mac_res.r 7048 2007-01-01 21:19:14Z jacob $ */
+/* $Id$ */
 /*
  * Copyright (c) 1999, 2002, 2003 Ben Harris
  * All rights reserved.

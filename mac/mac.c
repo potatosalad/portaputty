@@ -1,4 +1,4 @@
-/* $Id: mac.c 5424 2005-03-01 21:38:06Z owen $ */
+/* $Id$ */
 /*
  * Copyright (c) 1999, 2003 Ben Harris
  * All rights reserved.
