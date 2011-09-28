@@ -424,16 +424,16 @@ void enum_settings_finish(void *handle)
 	closedir(dp);
 }
 
-static void hostkey_regname(char *buffer, const char *hostname,
-				int port, const char *keytype)
-{
-	int len;
-	strcpy(buffer, keytype);
-	strcat(buffer, "@");
-	len = strlen(buffer);
-	len += sprintf(buffer + len, "%d:", port);
-	mungestr(hostname, buffer + strlen(buffer));
-}
+// static void hostkey_regname(char *buffer, const char *hostname,
+// 				int port, const char *keytype)
+// {
+// 	int len;
+// 	strcpy(buffer, keytype);
+// 	strcat(buffer, "@");
+// 	len = strlen(buffer);
+// 	len += sprintf(buffer + len, "%d:", port);
+// 	mungestr(hostname, buffer + strlen(buffer));
+// }
 
 int verify_host_key(const char *hostname, int port,
 			const char *keytype, const char *key)
