@@ -1,5 +1,5 @@
 ; -*- no -*-
-; $Id: putty.iss 7146 2007-01-24 20:16:33Z simon $
+; $Id$
 ;
 ; -- Inno Setup installer script for PuTTY and its related tools.
 ;

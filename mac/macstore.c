@@ -1,4 +1,4 @@
-/* $Id: macstore.c 5385 2005-02-22 23:40:47Z owen $ */
+/* $Id$ */
 
 /*
  * macstore.c: Macintosh-specific impementation of the interface

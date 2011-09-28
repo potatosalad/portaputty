@@ -1,4 +1,4 @@
-/* $Id: testback.c 5251 2005-02-05 10:55:09Z simon $ */
+/* $Id$ */
 /*
  * Copyright (c) 1999 Simon Tatham
  * Copyright (c) 1999 Ben Harris

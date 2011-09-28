@@ -1,4 +1,4 @@
-/* $Id: macenc.c 4787 2004-11-16 15:27:00Z simon $ */
+/* $Id: macenc.c,v 1.2 2003/01/25 19:21:56 ben Exp $ */
 /*
  * Copyright (c) 2003 Ben Harris
  * All rights reserved.
